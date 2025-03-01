@@ -1,20 +1,34 @@
 import OpenAI from 'openai';
+import Groq from 'groq-sdk';
 import { appConfig } from '../config/config';
+import type { ModelProvider } from '../config/config';
 import type { AgentResponse, Message } from '../types';
 
 /**
- * Service for interacting with the OpenAI API
+ * Service for interacting with LLM APIs (OpenAI or Groq)
  */
 export class LlmService {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
+  private groq: Groq | null = null;
   private requestCount: number = 0;
   private lastResetTime: number = Date.now();
   private rateLimit: number;
+  private modelProvider: ModelProvider;
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: appConfig.openaiApiKey,
-    });
+    this.modelProvider = appConfig.modelProvider;
+    
+    // Initialize the appropriate client based on the provider
+    if (this.modelProvider === 'openai') {
+      this.openai = new OpenAI({
+        apiKey: appConfig.openaiApiKey,
+      });
+    } else if (this.modelProvider === 'groq') {
+      this.groq = new Groq({
+        apiKey: appConfig.groqApiKey,
+      });
+    }
+    
     this.rateLimit = appConfig.rateLimit;
   }
 
@@ -35,27 +49,47 @@ export class LlmService {
     // Check rate limiting
     await this.checkRateLimit();
 
-    // Format messages for the OpenAI API
+    // Format messages for the API
     const formattedMessages = this.formatMessagesForApi(agentName, systemPrompt, messages, privateThoughts);
 
     try {
-      const response = await this.openai.chat.completions.create({
-        model: appConfig.llmModel,
-        messages: formattedMessages,
-        temperature: 0.7,
-        max_tokens: 1000,
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-      });
+      let responseContent: string;
+      
+      if (this.modelProvider === 'openai' && this.openai) {
+        const response = await this.openai.chat.completions.create({
+          model: appConfig.llmModel,
+          messages: formattedMessages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+        });
+        
+        responseContent = response.choices[0]?.message?.content || '';
+      } else if (this.modelProvider === 'groq' && this.groq) {
+        const response = await this.groq.chat.completions.create({
+          model: appConfig.llmModel,
+          messages: formattedMessages,
+          temperature: 0.7,
+          max_tokens: 1000,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+        });
+        
+        responseContent = response.choices[0]?.message?.content || '';
+      } else {
+        throw new Error(`Unsupported model provider: ${this.modelProvider}`);
+      }
 
       // Increment request count for rate limiting
       this.requestCount++;
 
       // Parse the response to extract public and private parts
-      return this.parseAgentResponse(response.choices[0]?.message?.content || '');
+      return this.parseAgentResponse(responseContent);
     } catch (error) {
-      console.error('Error generating agent response:', error);
+      console.error(`Error generating agent response with ${this.modelProvider}:`, error);
       return {
         publicResponse: `${agentName} is unable to respond at the moment.`,
         privateThoughts: `Error generating response: ${error}`,
@@ -64,7 +98,7 @@ export class LlmService {
   }
 
   /**
-   * Format messages for the OpenAI API
+   * Format messages for the API
    */
   private formatMessagesForApi(
     agentName: string,

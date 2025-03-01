@@ -2,7 +2,9 @@ import { Command } from 'commander';
 import { LlmService } from './services/llm-service';
 import { DatabaseService } from './db/database';
 import { AgentService } from './services/agent-service';
+import { appConfig } from './config/config';
 import type { StartConversationOptions } from './types';
+import type { ModelProvider } from './config/config';
 
 const program = new Command();
 
@@ -22,9 +24,21 @@ program
   .requiredOption('-a, --agents <number>', 'Number of agents', parseInt)
   .requiredOption('-t, --topic <string>', 'Conversation topic')
   .option('-r, --turns <number>', 'Number of turns', parseInt, 3)
-  .action(async (options: StartConversationOptions) => {
+  .option('-p, --provider <string>', 'Model provider (openai or groq)', validateProvider, appConfig.modelProvider)
+  .option('-m, --model <string>', 'Model name', appConfig.llmModel)
+  .action(async (options: StartConversationOptions & { provider?: ModelProvider; model?: string }) => {
     try {
+      // Set model provider and model if specified
+      if (options.provider) {
+        process.env.MODEL_PROVIDER = options.provider;
+      }
+      
+      if (options.model) {
+        process.env.LLM_MODEL = options.model;
+      }
+      
       console.log(`Starting a new conversation with ${options.agents} agents on topic: "${options.topic}"`);
+      console.log(`Using model provider: ${process.env.MODEL_PROVIDER}, model: ${process.env.LLM_MODEL}`);
       
       // Create conversation
       const conversation = agentService.createConversation(options.topic, options.agents);
@@ -47,9 +61,21 @@ program
   .description('Load and continue an existing conversation')
   .requiredOption('-i, --id <string>', 'Conversation ID')
   .requiredOption('-r, --turns <number>', 'Number of additional turns', parseInt)
-  .action(async (options: { id: string; turns: number }) => {
+  .option('-p, --provider <string>', 'Model provider (openai or groq)', validateProvider, appConfig.modelProvider)
+  .option('-m, --model <string>', 'Model name', appConfig.llmModel)
+  .action(async (options: { id: string; turns: number; provider?: ModelProvider; model?: string }) => {
     try {
+      // Set model provider and model if specified
+      if (options.provider) {
+        process.env.MODEL_PROVIDER = options.provider;
+      }
+      
+      if (options.model) {
+        process.env.LLM_MODEL = options.model;
+      }
+      
       console.log(`Loading conversation with ID: ${options.id}`);
+      console.log(`Using model provider: ${process.env.MODEL_PROVIDER}, model: ${process.env.LLM_MODEL}`);
       
       // Load conversation
       const conversation = agentService.loadConversation(options.id);
@@ -73,6 +99,16 @@ program
       dbService.close();
     }
   });
+
+/**
+ * Validate the model provider
+ */
+function validateProvider(value: string): ModelProvider {
+  if (value !== 'openai' && value !== 'groq') {
+    throw new Error('Model provider must be either "openai" or "groq"');
+  }
+  return value as ModelProvider;
+}
 
 export const runCli = (): void => {
   program.parse(process.argv);

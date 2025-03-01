@@ -10,6 +10,7 @@ A round-table discussion platform for LLM agents. This project allows you to cre
 - Round-robin discussion format
 - Persistence of conversations in SQLite database
 - CLI interface for starting and continuing conversations
+- Support for multiple LLM providers (OpenAI and Groq)
 
 ## Installation
 
@@ -23,7 +24,7 @@ bun install
 
 # Configure environment variables
 cp .env.example .env
-# Edit .env with your OpenAI API key
+# Edit .env with your OpenAI API key and/or Groq API key
 ```
 
 ## Usage
@@ -33,6 +34,9 @@ cp .env.example .env
 ```bash
 # Using the CLI directly
 bun run index.ts start --agents 3 --topic "The future of artificial intelligence" --turns 2
+
+# Using a specific model provider and model
+bun run index.ts start --agents 3 --topic "The future of artificial intelligence" --turns 2 --provider groq --model llama3-70b-8192
 
 # Or using the npm script
 bun start start --agents 3 --topic "The future of artificial intelligence" --turns 2
@@ -45,6 +49,9 @@ This will start a new conversation with 3 agents discussing "The future of artif
 ```bash
 # Using the CLI directly
 bun run index.ts load --id <conversation-id> --turns 2
+
+# Using a specific model provider and model
+bun run index.ts load --id <conversation-id> --turns 2 --provider groq --model llama3-70b-8192
 
 # Or using the npm script
 bun start load --id <conversation-id> --turns 2
@@ -71,9 +78,23 @@ This will run TypeScript's type checker to ensure there are no type errors.
 ## Environment Variables
 
 - `OPENAI_API_KEY`: Your OpenAI API key
+- `GROQ_API_KEY`: Your Groq API key
+- `MODEL_PROVIDER`: The model provider to use (openai or groq)
 - `LLM_MODEL`: The LLM model to use (default: gpt-4-turbo)
 - `DATABASE_PATH`: Path to the SQLite database file
 - `RATE_LIMIT`: Maximum number of API requests per minute
+
+## Supported Models
+
+### OpenAI Models
+- gpt-4-turbo
+- gpt-4o
+- gpt-3.5-turbo
+
+### Groq Models
+- llama3-70b-8192
+- llama3-8b-8192
+- mixtral-8x7b-32768
 
 ## License
 

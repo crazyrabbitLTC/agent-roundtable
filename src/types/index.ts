@@ -38,6 +38,8 @@ export interface StartConversationOptions {
   agents: number;
   topic: string;
   turns: number;
+  provider?: string;
+  model?: string;
 }
 
 // Database schema types
