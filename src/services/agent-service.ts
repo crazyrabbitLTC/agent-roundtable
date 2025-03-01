@@ -210,7 +210,18 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
 
         // Get the latest message
         const latestMessage = currentConversation.messages[currentConversation.messages.length - 1];
+        
+        // Display the message with the agent's name prefix
         console.log(`${latestMessage.agentName}: ${latestMessage.content}`);
+        
+        // If there are private thoughts, display them too
+        if (agent.privateThoughts.length > 0) {
+          const latestThought = agent.privateThoughts[agent.privateThoughts.length - 1];
+          if (latestThought.content.trim()) {
+            console.log(`\nPRIVATE THOUGHTS:\n${latestThought.content}`);
+          }
+        }
+        
         console.log('---');
       }
     }
