@@ -158,8 +158,13 @@ export class LlmService {
       publicResponse = publicMatch[1].trim();
       
       // Remove any agent name prefix that might have been added by the model
-      // This regex will match patterns like "User A: User A: " at the beginning of the string
+      // This regex will match patterns like "User A: User A: User A: " at the beginning of the string
+      // The global flag ensures all occurrences are replaced
       publicResponse = publicResponse.replace(/^(User [A-Z]+:\s*)+/g, '');
+      
+      // Also remove any redundant name prefixes that might appear in the middle of the text
+      // This handles cases where the model repeats the name prefix in the response
+      publicResponse = publicResponse.replace(/(User [A-Z]+:\s*){2,}/g, '');
     }
 
     if (privateMatch && privateMatch[1]) {

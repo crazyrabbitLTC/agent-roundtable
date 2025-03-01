@@ -120,8 +120,9 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
 
     const now = Date.now();
 
-    // Format the public response with the agent's name
-    const formattedPublicResponse = `${response.publicResponse}`;
+    // Store the public response without adding the agent's name prefix
+    // The agent name is already stored in the agentName field of the message
+    const formattedPublicResponse = response.publicResponse;
 
     // Create public message
     const publicMessageId = uuidv4();
@@ -211,8 +212,9 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
         // Get the latest message
         const latestMessage = currentConversation.messages[currentConversation.messages.length - 1];
         
-        // Display the message with the agent's name prefix
-        console.log(`${latestMessage.agentName}: ${latestMessage.content}`);
+        // Display the message content directly without adding the agent name prefix again
+        // The agent name is already displayed in the "User X's turn..." line above
+        console.log(latestMessage.content);
         
         // If there are private thoughts, display them too
         if (agent.privateThoughts.length > 0) {
