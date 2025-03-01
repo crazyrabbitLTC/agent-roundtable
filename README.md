@@ -31,7 +31,11 @@ cp .env.example .env
 ### Starting a new conversation
 
 ```bash
+# Using the CLI directly
 bun run index.ts start --agents 3 --topic "The future of artificial intelligence" --turns 2
+
+# Or using the npm script
+bun start start --agents 3 --topic "The future of artificial intelligence" --turns 2
 ```
 
 This will start a new conversation with 3 agents discussing "The future of artificial intelligence" for 2 turns each.
@@ -39,10 +43,30 @@ This will start a new conversation with 3 agents discussing "The future of artif
 ### Continuing an existing conversation
 
 ```bash
+# Using the CLI directly
 bun run index.ts load --id <conversation-id> --turns 2
+
+# Or using the npm script
+bun start load --id <conversation-id> --turns 2
 ```
 
 This will load an existing conversation and continue it for 2 more turns.
+
+### Running the test script
+
+```bash
+bun test
+```
+
+This will run a test script that creates a conversation with 3 agents and runs it for 2 turns.
+
+### Type checking
+
+```bash
+bun typecheck
+```
+
+This will run TypeScript's type checker to ensure there are no type errors.
 
 ## Environment Variables
 
