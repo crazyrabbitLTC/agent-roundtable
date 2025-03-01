@@ -75,7 +75,7 @@ export class LlmService {
     // Create the system message with the agent's name
     const systemMessage = {
       role: 'system',
-      content: `${systemPrompt}\n\nYour name is ${agentName}. When you respond, your message will be prefaced with "${agentName}:". You are participating in a round-table discussion with other agents.\n\nYour response should be in the following format:\n\nPUBLIC RESPONSE:\n[Your message that will be shared with all participants]\n\nPRIVATE THOUGHTS:\n[Your private thoughts that only you will see]`,
+      content: `${systemPrompt}\n\nYour name is ${agentName}. You are participating in a round-table discussion with other agents.\n\nYour response should be in the following format:\n\nPUBLIC RESPONSE:\n[Your message that will be shared with all participants]\n\nPRIVATE THOUGHTS:\n[Your private thoughts that only you will see]`,
     };
 
     // Format conversation history
@@ -122,6 +122,9 @@ export class LlmService {
 
     if (publicMatch && publicMatch[1]) {
       publicResponse = publicMatch[1].trim();
+      
+      // Remove any agent name prefix that might have been added by the model
+      publicResponse = publicResponse.replace(/^(User [A-Z]+:\s*)+/i, '');
     }
 
     if (privateMatch && privateMatch[1]) {

@@ -120,6 +120,9 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
 
     const now = Date.now();
 
+    // Format the public response with the agent's name
+    const formattedPublicResponse = `${response.publicResponse}`;
+
     // Create public message
     const publicMessageId = uuidv4();
     const publicMessage: Message = {
@@ -127,7 +130,7 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
       conversationId: conversation.id,
       agentId: agent.id,
       agentName: agent.name,
-      content: response.publicResponse,
+      content: formattedPublicResponse,
       isPrivate: false,
       timestamp: now,
     };
@@ -138,7 +141,7 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
       conversation_id: conversation.id,
       agent_id: agent.id,
       agent_name: agent.name,
-      content: response.publicResponse,
+      content: formattedPublicResponse,
       is_private: false,
       timestamp: now,
     });
