@@ -172,7 +172,7 @@ Be respectful, insightful, and contribute meaningfully to the discussion.`;
     conversation.updatedAt = now;
 
     // Update conversation in database
-    this.dbService.createConversation({
+    this.dbService.updateConversation({
       id: conversation.id,
       topic: conversation.topic,
       created_at: conversation.createdAt,

@@ -72,6 +72,16 @@ export class DatabaseService {
   }
 
   /**
+   * Update an existing conversation
+   */
+  updateConversation(conversation: DbConversation): void {
+    this.db.run(
+      'UPDATE conversations SET topic = ?, updated_at = ? WHERE id = ?',
+      [conversation.topic, conversation.updated_at, conversation.id]
+    );
+  }
+
+  /**
    * Create a new agent
    */
   createAgent(agent: DbAgent): void {
